@@ -22,11 +22,13 @@ export const register = async (req, res) => {
     }
     const salt = bcrypt.genSaltSync(10);
     const hashedPassword = bcrypt.hashSync(password, salt);
-    await User.create({
+    const newUser = await User.create({
       username,
       email,
       password: hashedPassword,
     });
+    newUser.status = "registered";
+    await newUser.save();
     return res.status(201).json({
       message: "Account created Successfully!",
     });
@@ -43,7 +45,7 @@ export const login = async (req, res) => {
         message: "Please Enter Correct email or password!",
       });
     }
-    const user = await user.findOne({ email });
+    let user = await User.findOne({ email });
     if (!user) {
       return res.status(404).json({
         message: "User not Found, please register!",
@@ -65,7 +67,11 @@ export const login = async (req, res) => {
       followers: user.followers,
       following: user.following,
       posts: user.posts,
+      status: "logged-In",
     };
+    
+    user.status = "logged-In";
+    // await user.save();
 
     const token = jwt.sign({ userId: user._id }, secret, { expiresIn: "1d" });
     return res
@@ -85,7 +91,12 @@ export const login = async (req, res) => {
 
 export const logout = async (req, res) => {
   try {
-    return res.cookie("token", "", { maxAge: 0 }).json({
+    res.cookie("token", "", { maxAge: 0 });
+    const user = req.User;
+    if (user) {
+      user.status = "logged-Out";
+    }
+    return res.json({
       message: "Logged out Successfully",
     });
   } catch (error) {
@@ -137,7 +148,7 @@ export const editProfile = async (req, res) => {
   }
 };
 
-export const suggestedUsers = async (req, res) => {
+export const getSuggestedUsers = async (req, res) => {
   try {
     const suggestedUsers = await User.find({ _id: { $ne: req.id } }).select(
       "-password"
@@ -168,29 +179,41 @@ export const followorUnfollow = async (req, res) => {
     const targetUser = await User.findById(personWhoIsBeingFollowed);
     if (!user || !targetUser) {
       return res.status(404).json({
-        message: "User/targetUser not found!",
+        message: "either you or the user you want to follow doesn't exist!",
       });
     }
-    // cheking if we want to follow or unfollow 
-    const isFollowing = user.following.includes(personWhoIsBeingFollowed)
-    if(isFollowing){
+    // cheking if we want to follow or unfollow
+    const isFollowing = user.following.includes(personWhoIsBeingFollowed);
+    if (isFollowing) {
       // unfollow him/her
       await Promise.all([
-        User.updateOne({_id:personWhoIsFollowing},{$pull:{following:personWhoIsBeingFollowed}}),
-        User.updateOne({_id:personWhoIsBeingFollowed},{$pull:{followers:personWhoIsFollowing}})
-      ])
+        User.updateOne(
+          { _id: personWhoIsFollowing },
+          { $pull: { following: personWhoIsBeingFollowed } }
+        ),
+        User.updateOne(
+          { _id: personWhoIsBeingFollowed },
+          { $pull: { followers: personWhoIsFollowing } }
+        ),
+      ]);
       return res.status(200).json({
-        message: "Unfollowed successfully"
-      })
-    } else{
+        message: "Unfollowed successfully",
+      });
+    } else {
       //follow him/her
       await Promise.all([
-        User.updateOne({_id: personWhoIsFollowing},{$push:{following:personWhoIsBeingFollowed}}),
-        User.updateOne({_id:personWhoIsBeingFollowed},{$push:{followers:personWhoIsFollowing}})
-      ])
+        User.updateOne(
+          { _id: personWhoIsFollowing },
+          { $push: { following: personWhoIsBeingFollowed } }
+        ),
+        User.updateOne(
+          { _id: personWhoIsBeingFollowed },
+          { $push: { followers: personWhoIsFollowing } }
+        ),
+      ]);
       return res.status(200).json({
-        message: "Following successfully, Enjoy!"
-      })
+        message: "Following successfully, Enjoy!",
+      });
     }
   } catch (error) {
     console.log("Error during following/unfollowing the User", error);

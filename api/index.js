@@ -3,6 +3,8 @@ import cors from "cors"
 import cookieParser from "cookie-parser";
 import mongoose from "mongoose";
 import dotenv from "dotenv";
+import userRoute from "./routes/user.route.js"
+
 dotenv.config({})
 
 const app = express()
@@ -22,9 +24,7 @@ mongoose.connect(process.env.Mongo_DB)
 .then(() => console.log(`MongoDB Connected`))
 .catch((e) => console.log("Error in Conntecting Mongodb",err))
 
-app.get("/", (req, res) => {
-    res.json("Hello World")
-})
+app.use("/api/v1/user", userRoute)
 
 app.listen(PORT, () => {
     console.log(`App Listening on PORT ${PORT}`);
