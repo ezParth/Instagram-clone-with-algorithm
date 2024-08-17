@@ -180,3 +180,38 @@ export const getComment = async (req, res) => {
     console.log("Error getting the comments of this post", error);
   }
 };
+
+export const deletePost = async (req, res) => {
+    try {
+        const postId = req.params.id;
+        const authorId = req.id;
+        const post = await Post.findById(postId);
+        if(!psot){
+            return res.status(404).json({
+                message: "post not found!"
+            })
+        }
+        if(post.author.toString() !== authorId){
+            res.status(403).json({
+                message:"unAuthorized"
+            })
+        }
+
+        //remove the postId from Post
+        await Post.findByIdAndDelete(postId)
+
+        // remove the id of the post from user.posts also
+        let user = await User.findById(authorId)
+        user.posts = user.posts.filter( id => id.toString() !== postId)// we are converting it to toString because id is stored as an object in database and also user.post is an array so we can apply filter method of javascipt here to filter out all the required posts
+        await user.save();
+
+        //delete associated comments
+        await Comment.deleteMany({post: postId})// comment schema ke ander post hai jisme har post ki ek id hai aur jo id bhi postId se milti hai unko ham yaha par delete kr rhe hai
+
+        return res.status(200).json({
+            message: "deleted Post successfully"
+        })
+    } catch (error) {
+        console.log("Error in deleting the post", error)
+    }
+}
