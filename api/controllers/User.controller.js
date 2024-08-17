@@ -40,40 +40,38 @@ export const register = async (req, res) => {
 export const login = async (req, res) => {
   try {
     const { email, password } = req.body;
+    
+    // Check for email and password
     if (!email || !password) {
       return res.status(401).json({
         message: "Please Enter Correct email or password!",
       });
     }
+
+    // Find the user by email
     let user = await User.findOne({ email });
     if (!user) {
       return res.status(404).json({
         message: "User not Found, please register!",
       });
     }
+
+    // Check if the password is correct
     const isPasswordOk = await bcrypt.compare(password, user.password);
     if (!isPasswordOk) {
       return res.status(404).json({
-        message: "incorrect Password!",
+        message: "Incorrect Password!",
       });
     }
 
-    user = {
-      _id: user._id,
-      username: user.username,
-      email: user.email,
-      profilePicture: user.profilePicture,
-      bio: user.bio,
-      followers: user.followers,
-      following: user.following,
-      posts: user.posts,
-      status: "logged-In",
-    };
-    
+    // Update the user status
     user.status = "logged-In";
-    // await user.save();
+    await user.save(); // Save the updated user document
 
+    // Generate JWT token
     const token = jwt.sign({ userId: user._id }, secret, { expiresIn: "1d" });
+
+    // Set cookie and respond
     return res
       .cookie("token", token, {
         httpOnly: true,
@@ -82,10 +80,23 @@ export const login = async (req, res) => {
       })
       .json({
         message: `Welcome back ${user.username}`,
-        user,
+        user: {
+          _id: user._id,
+          username: user.username,
+          email: user.email,
+          profilePicture: user.profilePicture,
+          bio: user.bio,
+          followers: user.followers,
+          following: user.following,
+          posts: user.posts,
+          status: user.status, // Include updated status
+        },
       });
   } catch (error) {
     console.log("Error during login: ", error);
+    return res.status(500).json({
+      message: "Internal Server Error",
+    });
   }
 };
 
