@@ -36,12 +36,35 @@ export const addNewPost = async (req, res) => {
             user.posts.push(post._id);// pushing the id of the post in the posts array of the user.model schema and then further if you want you can populate the posts and get the full post info
             await user.save();
         }
-        await post.populate({path: 'author', select:'-password'})
+        await post.populate({path: 'author', select:'-password'})// ye author ke ander info instert krega naaki post ke ander // isme user ki saari details to aaengi but password nahi aaega
         return res.status(201).json({
             message: "New Post added!",
             post
         })
     } catch (error) {
         console.log("Error adding the Post", error);
+    }
+}
+
+export const getAllPost = async (req, res) => {
+    try {
+        const posts = await Post.find().sort({createdAt:-1})//sorting post in increasing order of time so that we can see recently created posts first
+        .populate({path:'author', select:'username, profilepicture'})
+        .populate({path:'comments', sort:{createdAt:-1}, populate:{path:'author', select:'username, profilePicture'}})
+        return res.status(200).json({
+            message: "successfull retrived all posts",
+            posts,
+        })
+    } catch (error) {
+        console.log("Error getting all Post", error)
+    }
+}
+
+export const getUserPost = async (req, res) => {
+    try {
+        const authorId = req.id;// getting from authentication
+        
+    } catch (error) {
+        console.log("Error getting user's posts", error);
     }
 }
