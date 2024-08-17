@@ -37,3 +37,24 @@ export const sendMessage = async (req, res) => {
     console.log("Error during sending the message", error);
   }
 };
+
+export const getMessage = async (req, res) => {
+    try {
+        const senderId = req.id;
+        const recieverId = req.params.id;
+        const conversation = await Conversation.find({
+            participants: {$all: {senderId, recieverId}}
+        })       
+        if(!conversation){
+            return res.status(200).json({
+                message: []
+            })
+        }//there is no message which means covnersation is empty
+        return res.status(200).json({
+            messages: conversation?.messages
+        })// ? because if conversation is undefined then it will give an error as undefined ka . nikalne se error aata hai      
+        
+    } catch (error) {
+        console.log("Error getting the messages", error);
+    }
+}

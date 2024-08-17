@@ -4,6 +4,8 @@ import cookieParser from "cookie-parser";
 import mongoose from "mongoose";
 import dotenv from "dotenv";
 import userRoute from "./routes/user.route.js"
+import postRoute from "./routes/post.route.js"
+import messageRoute from "./routes/message.route.js"
 
 dotenv.config({})
 
@@ -25,6 +27,8 @@ mongoose.connect(process.env.Mongo_DB)
 .catch((e) => console.log("Error in Conntecting Mongodb",err))
 
 app.use("/api/v1/user", userRoute)
+app.use("/api/v1/post", postRoute)
+app.use("/api/v1/message", messageRoute)
 
 app.listen(PORT, () => {
     console.log(`App Listening on PORT ${PORT}`);
