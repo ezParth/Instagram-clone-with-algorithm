@@ -63,7 +63,14 @@ export const getAllPost = async (req, res) => {
 export const getUserPost = async (req, res) => {
     try {
         const authorId = req.id;// getting from authentication
-        
+        const posts = await Post.find({author: authorId})// Post ke ander jo author hai aur ham jo authorId provide krwa rhe hai dono match krne chahiye
+        .sort({createdAt:-1})
+        .populate({path: 'author', select:'username, profilePicture'})
+        .populate({path:'comments', sort: {createdAt:-1}, populate:{path:'author', select:'username, profilePicture'}})
+        return res.status(200).json({
+            message: `successfully retrived the posts created by ${posts.username}`,
+            posts
+        })
     } catch (error) {
         console.log("Error getting user's posts", error);
     }
