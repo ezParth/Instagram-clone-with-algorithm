@@ -24,3 +24,5 @@ const isAuthenticated = async (req, res, next) => {
 }
 
 export default isAuthenticated;
+
+//1. Decentralized Social Media Platform
