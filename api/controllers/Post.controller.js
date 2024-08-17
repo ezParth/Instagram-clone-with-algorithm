@@ -161,3 +161,22 @@ export const addComment = async (req, res) => {
     console.log("Error in adding comments", error);
   }
 };
+
+export const getComment = async (req, res) => {
+  try {
+    const postId = req.params.id;
+    const comments = await Comment.find({ post: postId }) // finding the comments of the post with a specific id of post called postId// mtlb is id waali post ke comments ko ham retrive(nikal) rhe hai
+      .populate("author", "username, profilePicture");
+    if (!comments) {
+      return res.status(404).json({
+        message: "No comments found on this post!",
+      });
+    }
+    return res.status(200).json({
+      message: "Comments retrived:}",
+      comments,
+    });
+  } catch (error) {
+    console.log("Error getting the comments of this post", error);
+  }
+};
