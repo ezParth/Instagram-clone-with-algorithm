@@ -75,3 +75,26 @@ export const getUserPost = async (req, res) => {
         console.log("Error getting user's posts", error);
     }
 }
+
+export const likePost = async (req, res) => {
+    try {
+        const userWhoIsLiking = req.id;
+        const postId = req.params.id;
+        const post = await Post.findById(postId);
+        if (!post){
+            return res.status(404).json({
+                messgae: "Post not found!"
+            })
+        }
+        await post.updateOne({$addToSet:{likes:userWhoIsLiking.id}})
+        await post.save();
+
+        //implementing socket.io for real time notification
+        
+        return res.status(200).json({
+            messgae:"post liked successfully!"
+        })
+    } catch (error) {
+        console.log("Error in liking the post {server side}", error);
+    }
+}
