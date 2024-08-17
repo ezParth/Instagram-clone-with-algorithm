@@ -215,3 +215,41 @@ export const deletePost = async (req, res) => {
         console.log("Error in deleting the post", error)
     }
 }
+
+export const bookemarkPost = async (req, res) => {
+    try {
+        const postId = req.params.id;
+        const authorId = req.id;
+        const post = await Post.findById(postId);
+        if(!post){
+            return res.status(200).json({
+                message: "post not found(to bookemark)!"
+            })
+        }
+        const user = await User.findById(authorId);
+        if(!user){
+            return res.status(404).json({
+                message: "user who is trying to bookmark doesn't exist"
+            })
+        }
+        //check if the post is already bookmarked( if yes then remove it )
+        if(user.bookmarks.includes(post._id)){
+            //already bookmarked post
+            await user.updateOne({$pull: {bookemarks: post._id}});
+            await user.save();
+            return res.status(200).json({
+                type: "unsaved",
+                message: "bookmark removed successfully"
+            })
+        }else{
+            //if post is not already bookmarked then we will bookmark it
+            await user.updateOne({$addToSet: {bookmarks: post._id}});
+            await user.save();
+            return res.status(200).json({
+                message: "post bookmarked successfully"
+            })
+        }
+    } catch (error) {
+     console.log("Error bookmarking the post", error)   
+    }
+}
