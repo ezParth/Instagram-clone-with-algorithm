@@ -90,11 +90,28 @@ export const likePost = async (req, res) => {
         await post.save();
 
         //implementing socket.io for real time notification
-        
+
         return res.status(200).json({
             messgae:"post liked successfully!"
         })
     } catch (error) {
         console.log("Error in liking the post {server side}", error);
+    }
+}
+
+export const dislikePost = async (req, res) => {
+    try {
+        const userWhoIsDisliking = req.id;
+        const postId = req.params.id;
+        const post = Post.findById(postId);
+        if(!post){
+            return res.status(404).json({
+                message: "post not found"
+            })
+        }
+        await post.updateOne({ $pull: {likes: userWhoIsDisliking} });
+        await post.save();
+    } catch (error) {
+        console.log("Error during disliking the post", error)
     }
 }
