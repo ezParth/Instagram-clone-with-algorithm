@@ -4,6 +4,7 @@ import jwt from "jsonwebtoken";
 import getDataUri from "../utils/datauri.js";
 import cloudinary from "../utils/cloudinary.js";
 import TokenBlacklist from "../model/TokenBlackList.js";
+import Post from "../model/Post.js";
 
 const secret = process.env.SECRET_TOKEN;
 
@@ -72,6 +73,15 @@ export const login = async (req, res) => {
     // Generate JWT token
     const token = jwt.sign({ userId: user._id }, secret, { expiresIn: "1d" });
 
+    const populatedPosts = await Promise.all(
+      user.posts.map(async (postId) => {
+        const post = Post.findById(postId)
+        if(post.author.equals(user._id)){
+          return post;
+        }
+        return null;
+      })
+    )
     user = {
       _id: user._id,
       username: user.username,
@@ -80,7 +90,7 @@ export const login = async (req, res) => {
       bio: user.bio,
       followers: user.followers,
       following: user.following,
-      posts: user.posts,
+      posts: populatedPosts,
       status: user.status, // Include updated status
     };
 
