@@ -66,7 +66,7 @@ function Signup() {
           <span className=" font-medium">Password</span>
           <Input type="password" name="password" value={input.password} onChange={changeEventHandler} className="focus-visible:ring-transparent my-2" />
         </div>
-        <Button type="submit">Signup</Button>
+        <Button type="submit" disabled={loading}>{loading?'Signing Up...':'Signup'}</Button>
       </form>
     </div>
   );
