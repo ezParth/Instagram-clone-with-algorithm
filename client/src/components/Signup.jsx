@@ -1,6 +1,8 @@
 import React, { useState } from "react";
 import Input from "./ui/input";
 import { Button } from "./ui/button";
+import { toast } from "sonner";
+import axios from "axios";
 
 function Signup() {
   const [input, setInput] = useState({
@@ -8,19 +10,35 @@ function Signup() {
     email: "",
     password: "",
   });
+  const [loading, setLoading] = useState(false);
   const changeEventHandler = (e) => {
     setInput({...input, [e.target.name]:e.target.value})// we used ...input because we want email/email/password property intact as we change the username/password/email
-    // setInput({...input, [e.target.email]:e.target.value})// we used ...input because we want email and password property intact as we chaneg the username
-    // setInput({...input, [e.target.password]:e.target.value})// we used ...input because we want email and password property intact as we chaneg the username
   }
-  const signupHandler = (e) => {
+  const signupHandler = async (e) => {
     e.preventDefault();
     console.log(input);
-    
     try {
-        
+      setLoading(true)
+        const res = await axios.post('http://localhost:3000/api/v1/user/register', input, {
+            headers:{
+                'Content-Type': 'application/json',
+            },
+            withCredentials: true
+        })
+        console.log('the response from axios request is: ',res.headers)
+        if(res.data.message === 'Account created Successfully!'){
+            toast.success(res.data.message)
+            setInput({
+              username: "",
+              email: "",
+              password: "",
+            })
+        }
     } catch (error) {
-        console.log(error)
+        console.log(error);
+        toast.error(error.response.data.message)
+    } finally{
+      setLoading(false);
     }
   }
   return (

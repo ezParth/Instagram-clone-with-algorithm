@@ -162,7 +162,7 @@ export const addComment = async (req, res) => {
   }
 };
 
-export const getComment = async (req, res) => {
+export const getComments = async (req, res) => {
   try {
     const postId = req.params.id;
     const comments = await Comment.find({ post: postId }) // finding the comments of the post with a specific id of post called postId// mtlb is id waali post ke comments ko ham retrive(nikal) rhe hai
@@ -216,7 +216,7 @@ export const deletePost = async (req, res) => {
     }
 }
 
-export const bookemarkPost = async (req, res) => {
+export const bookmarkPost = async (req, res) => {
     try {
         const postId = req.params.id;
         const authorId = req.id;
