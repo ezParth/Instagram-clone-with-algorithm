@@ -3,6 +3,8 @@ import Input from "./ui/input";
 import { Button } from "./ui/button";
 import { toast } from "sonner";
 import axios from "axios";
+import { Link, useNavigate } from "react-router-dom";
+import { Loader2 } from "lucide-react";
 
 function Login() {
   const [input, setInput] = useState({
@@ -10,6 +12,7 @@ function Login() {
     password: "",
   });
   const [loading, setLoading] = useState(false);
+  const Navigate = useNavigate()
   const changeEventHandler = (e) => {
     setInput({ ...input, [e.target.name]: e.target.value }); // we used ...input because we want email/email/password property intact as we change the username/password/email
   };
@@ -29,6 +32,7 @@ function Login() {
         }
       );
       if (res.data.success) {
+        Navigate("/")
         toast.success(res.data.message);
         setInput({
           email: "",
@@ -72,9 +76,20 @@ function Login() {
             className="focus-visible:ring-transparent my-2"
           />
         </div>
-        <Button type="submit" disabled={loading}>
-          {loading ? "logging In..." : "login"}
-        </Button>
+        {loading ? (
+          <Button>
+            <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+            Please Wait
+          </Button>
+        ) : (
+            <Button type="submit" >login</Button>
+        )}
+        <span>
+          Don't have an account?{" "}
+          <Link to="/register" className="text-blue-600">
+            Register
+          </Link>
+        </span>
       </form>
     </div>
   );

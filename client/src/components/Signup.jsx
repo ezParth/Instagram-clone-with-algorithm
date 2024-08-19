@@ -3,6 +3,7 @@ import Input from "./ui/input";
 import { Button } from "./ui/button";
 import { toast } from "sonner";
 import axios from "axios";
+import { Link, useNavigate } from "react-router-dom";
 
 function Signup() {
   const [input, setInput] = useState({
@@ -11,6 +12,7 @@ function Signup() {
     password: "",
   });
   const [loading, setLoading] = useState(false);
+  const Navigate = useNavigate();
   const changeEventHandler = (e) => {
     setInput({...input, [e.target.name]:e.target.value})// we used ...input because we want email/email/password property intact as we change the username/password/email
   }
@@ -27,6 +29,7 @@ function Signup() {
         })
         console.log('the response from axios request is: ',res.headers)
         if(res.data.message === 'Account created Successfully!'){
+          Navigate("/login")
             toast.success(res.data.message)
             setInput({
               username: "",
@@ -67,6 +70,7 @@ function Signup() {
           <Input type="password" name="password" value={input.password} onChange={changeEventHandler} className="focus-visible:ring-transparent my-2" />
         </div>
         <Button type="submit" disabled={loading}>{loading?'Signing Up...':'Signup'}</Button>
+        <span>Already have an account? <Link to="/login" className="text-blue-600">Login</Link></span>
       </form>
     </div>
   );
