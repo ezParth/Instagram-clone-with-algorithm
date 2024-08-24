@@ -1,0 +1,7 @@
+@import url('https://fonts.googleapis.com/css2?family=Pacifico&display=swap');
+/* styles.css or your CSS file */
+.font-pacifico {
+    font-family: 'Pacifico', cursive; /* Apply Pacifico font */
+    font-size: 2rem; /* Adjust size as needed */
+    font-weight: normal; /* Pacifico is a display font, so normal weight is fine */
+}

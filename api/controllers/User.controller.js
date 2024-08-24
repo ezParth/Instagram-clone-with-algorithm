@@ -135,12 +135,17 @@ export const login = async (req, res) => {
 
 export const logout = async (req, res) => {
   try {
-    res.cookie("token", "", { maxAge: 0 });
+    res.cookie("token", "", { maxAge: 0 }); // Clear the cookie
     return res.json({
-      message: "Logged out Successfully",
+      message: "Logged out Successfully", // Success message
+      success: true, // Indicates success
     });
   } catch (error) {
     console.log(error, "Error during Logout");
+    return res.status(500).json({
+      message: "An error occurred during logout", // Generic error message
+      success: false, // Indicates failure
+    });
   }
 };
 
@@ -172,6 +177,7 @@ export const editProfile = async (req, res) => {
     if (!user) {
       return res.status(404).json({
         message: "User not found!",
+        success: false
       });
     }
     if (bio) user.bio = bio;
